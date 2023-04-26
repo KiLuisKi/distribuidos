@@ -42,7 +42,7 @@ public class Proceso extends Thread {
 		this.ip[1] = ips[1];
 		// this.ip[2] = ips[2];
 		this.servidor = serverId;
-		this.logger = new Logger("C:\\Users\\Luis\\Desktop\\proceso_" + id + ".log");
+		this.logger = new Logger("C:\\Users\\Luis\\Desktop\\proceso_" + id + 1 + ".log");
 	}
 
 	private void entradaSC() {
@@ -177,14 +177,12 @@ public class Proceso extends Thread {
 						});
 			}
 		}
-		
-		for (numRespuestas = 0; numRespuestas < nProcesos; numRespuestas++) {
-			try {
-				semStart.acquire();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+
+		try {
+			semStart.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		for (int i = 0; i < 100; i++) {

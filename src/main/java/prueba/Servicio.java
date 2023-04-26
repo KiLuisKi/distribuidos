@@ -2,6 +2,7 @@ package prueba;
 
 import java.net.URI;
 import java.util.Scanner;
+import java.util.concurrent.Semaphore;
 
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -19,10 +20,13 @@ import javax.ws.rs.core.UriBuilder;
 @Singleton
 @Path("servicio")
 public class Servicio {
+	private int espera = 0;
 	private int servidor;
-	private int numProcesos = 2;
-	private int numServidores = 1;
+	private int numProcesos = 4;
+	private int numServidores = 2;
 	private Proceso procesos[] = new Proceso[2];
+	
+	private Semaphore semWait = new Semaphore(0);
 
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
@@ -42,7 +46,7 @@ public class Servicio {
 			String ips = ip[0] + "," + ip[1];// + "," + ip[2];
 
 			Client cliente = ClientBuilder.newClient();
-			URI uri = UriBuilder.fromUri("http://" + ip[servidor] + ":8080/prueba").build();
+			URI uri = UriBuilder.fromUri("http://" + ip[idIp] + ":8080/prueba").build();
 			WebTarget target = cliente.target(uri);
 			target.path("rest").path("servicio").path("procesos").queryParam("idIp", idIp).queryParam("ips", ips)
 					.request(MediaType.TEXT_PLAIN).async().get(new InvocationCallback<Response>() {
@@ -74,7 +78,8 @@ public class Servicio {
 			procesos[i].start();
 			i++;
 		}
-
+		
+		semWait.release();
 		return "Procesos creados";
 	}
 
@@ -104,17 +109,30 @@ public class Servicio {
 
 		return "Respuesta enviada";
 	}
-	
+
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("espera")
 	public String espera() {
-		int i = 0;
-		while (i < 2) {
-			procesos[i].startProc();
-			i++;
+		if (espera == (numProcesos - 1)) {
+			try {
+				semWait.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			int i = 0;
+			while (i < 2) {
+				procesos[i].startProc();
+				i++;
+			}
+		} else {
+			synchronized (this) {
+				espera++;
+			}
+
 		}
-		
+
 		return "Espera realizada";
-	}	
+	}
 }
