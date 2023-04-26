@@ -51,6 +51,7 @@ public class Proceso extends Thread {
 
 		for (int i = 0; i < nProcesos; i++) {
 			if (i != id) {
+				servidor = i / 2;
 
 				Client cliente = ClientBuilder.newClient();
 				URI uri = UriBuilder.fromUri("http://" + ip[servidor] + ":8080/prueba").build();
@@ -95,6 +96,7 @@ public class Proceso extends Thread {
 			String texto = "Cola" + (id + 1) + ": " + Pj + ", " + Tj + "\n";
 			logger.write(texto);
 		} else {
+			servidor = Pj / 2;
 
 			Client cliente = ClientBuilder.newClient();
 			URI uri = UriBuilder.fromUri("http://" + ip[servidor] + ":8080/prueba").build();
@@ -130,6 +132,7 @@ public class Proceso extends Thread {
 
 		while (!cola.isEmpty()) {
 			Mensaje mensaje = cola.poll();
+			servidor = mensaje.getIdProceso() / 2;
 
 			Client cliente = ClientBuilder.newClient();
 			URI uri = UriBuilder.fromUri("http://" + ip[servidor] + ":8080/prueba").build();
@@ -152,14 +155,37 @@ public class Proceso extends Thread {
 	}
 
 	public void run() {
-		/*for (numRespuestas = 0; numRespuestas < nProcesos; numRespuestas++) {
+		for (int i = 0; i < nProcesos; i++) {
+			if (i != id) {
+				servidor = i / 2;
+
+				Client cliente = ClientBuilder.newClient();
+				URI uri = UriBuilder.fromUri("http://" + ip[servidor] + ":8080/prueba").build();
+				WebTarget target = cliente.target(uri);
+
+				target.path("rest").path("servicio").path("espera").request(MediaType.TEXT_PLAIN).async()
+						.get(new InvocationCallback<Response>() {
+							@Override
+							public void completed(Response response) {
+							}
+
+							@Override
+							public void failed(Throwable throwable) {
+								System.out.println("Invocation failed.");
+								throwable.printStackTrace();
+							}
+						});
+			}
+		}
+		
+		for (numRespuestas = 0; numRespuestas < nProcesos; numRespuestas++) {
 			try {
 				semStart.acquire();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}*/
+		}
 
 		for (int i = 0; i < 100; i++) {
 			try {

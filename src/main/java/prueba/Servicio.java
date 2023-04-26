@@ -20,8 +20,8 @@ import javax.ws.rs.core.UriBuilder;
 @Path("servicio")
 public class Servicio {
 	private int servidor;
-	private int numProcesos = 4;
-	private int numServidores = 2;
+	private int numProcesos = 2;
+	private int numServidores = 1;
 	private Proceso procesos[] = new Proceso[2];
 
 	@GET
@@ -104,4 +104,17 @@ public class Servicio {
 
 		return "Respuesta enviada";
 	}
+	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("espera")
+	public String espera() {
+		int i = 0;
+		while (i < 2) {
+			procesos[i].startProc();
+			i++;
+		}
+		
+		return "Espera realizada";
+	}	
 }
