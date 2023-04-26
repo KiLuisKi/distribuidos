@@ -42,7 +42,7 @@ public class Proceso extends Thread {
 		this.ip[1] = ips[1];
 		// this.ip[2] = ips[2];
 		this.servidor = serverId;
-		this.logger = new Logger("C:\\Users\\Luis\\Desktop\\proceso_" + id + 1 + ".log");
+		this.logger = new Logger("C:\\Users\\Luis\\Desktop\\proceso_" + (id + 1) + ".log");
 	}
 
 	private void entradaSC() {
@@ -93,8 +93,6 @@ public class Proceso extends Thread {
 		if (estado == Estado.TOMADA || (estado == Estado.BUSCADA && (Ti < Tj || (Ti == Tj && id < Pj)))) {
 			Mensaje peticion = new Mensaje(Pj, Tj, TipoMensaje.SOLICITUD_ACCESO);
 			cola.offer(peticion);
-			String texto = "Cola" + (id + 1) + ": " + Pj + ", " + Tj + "\n";
-			logger.write(texto);
 		} else {
 			servidor = Pj / 2;
 
