@@ -26,6 +26,7 @@ public class Proceso extends Thread {
 	private Logger logger;
 	private int servidor;
 	private Semaphore semSC;
+	private Semaphore semStart;
 
 	public Proceso(int id, int numProcesos, String[] ips, int serverId) {
 		this.id = id;
@@ -36,8 +37,9 @@ public class Proceso extends Thread {
 		this.numRespuestas = 0;
 		this.nProcesos = numProcesos;
 		this.semSC = new Semaphore(0);
+		this.semStart = new Semaphore(0);
 		this.ip[0] = ips[0];
-		// this.ip[1] = ips[1];
+		this.ip[1] = ips[1];
 		// this.ip[2] = ips[2];
 		this.servidor = serverId;
 		this.logger = new Logger("C:\\Users\\Luis\\Desktop\\proceso_" + id + ".log");
@@ -113,7 +115,11 @@ public class Proceso extends Thread {
 	}
 
 	public void recibirRespuesta() {
-		this.semSC.release();
+		semSC.release();
+	}
+
+	public void startProc() {
+		semStart.release();
 	}
 
 	private void salidaSC() {
@@ -146,6 +152,15 @@ public class Proceso extends Thread {
 	}
 
 	public void run() {
+		/*for (numRespuestas = 0; numRespuestas < nProcesos; numRespuestas++) {
+			try {
+				semStart.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}*/
+
 		for (int i = 0; i < 100; i++) {
 			try {
 				Thread.sleep((long) (Math.random() * 200.0 + 300.0));

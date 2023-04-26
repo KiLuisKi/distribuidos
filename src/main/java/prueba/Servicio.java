@@ -20,8 +20,8 @@ import javax.ws.rs.core.UriBuilder;
 @Path("servicio")
 public class Servicio {
 	private int servidor;
-	private int numProcesos = 2;
-	private int numServidores = 1;
+	private int numProcesos = 4;
+	private int numServidores = 2;
 	private Proceso procesos[] = new Proceso[2];
 
 	@GET
@@ -39,7 +39,7 @@ public class Servicio {
 
 		for (int i = 0; i < numServidores; i++) {
 			int idIp = i;
-			String ips = ip[0];// + "," + ip[1] + "," + ip[2];
+			String ips = ip[0] + "," + ip[1];// + "," + ip[2];
 
 			Client cliente = ClientBuilder.newClient();
 			URI uri = UriBuilder.fromUri("http://" + ip[servidor] + ":8080/prueba").build();
