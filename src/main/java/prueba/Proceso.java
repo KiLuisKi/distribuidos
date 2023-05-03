@@ -119,16 +119,52 @@ public class Proceso extends Thread {
 		}
 	}
 
+	private double determinarDelay(long t0, long t1, long t2, long t3) {
+	    double d1 = (t1 - t0) / 2.0;
+	    double d2 = (t3 - t2) / 2.0;
+	    double d = d2 - d1;
+	    return d;
+	}
+
+	private double determinarOffset(long t0, long t1, long t2, long t3) {
+	    double o1 = (t1 - t0) / 2.0;
+	    double o2 = (t3 - t2) / 2.0;
+	    double o = (o1 + o2) / 2.0;
+	    return o;
+	}
+
 	public void run() {
+		//NTP
 		if (id == 0) {
-			for (int i = 0; i < 10; i++) {
-				try {
-					Thread.sleep((long) (Math.random() * 200.0 + 300.0));
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			for (int i = 0; i < (nProcesos / 2); i++) {
+				double mejorDelay = Double.MAX_VALUE;
+			    double mejorOffset = Double.MAX_VALUE;
+			    for (int j = 0; j < 10; j++) {
+			    	Client cliente = ClientBuilder.newClient();
+					URI uri = UriBuilder.fromUri("http://" + ip[i] + ":8080/prueba").build();
+					WebTarget target = cliente.target(uri);
+					
+			        long t0 = System.currentTimeMillis();
+			        String tiempo = target.path("rest").path("servicio").path("pedirTiempo").request(MediaType.TEXT_PLAIN).get(String.class);
+			        String[] tiempos = tiempo.split(",");
+			        long t1 = Long.parseLong(tiempos[0]);
+			        long t2 = Long.parseLong(tiempos[1]);
+			        long t3 = System.currentTimeMillis();
+
+			        double delay = determinarDelay(t0, t1, t2, t3);
+			        double offset = determinarOffset(t0, t1, t2, t3);
+
+			        if (delay < mejorDelay) {
+			            mejorDelay = delay;
+			            mejorOffset = offset;
+			        }
+			    }
+				System.out.println("El delay maximo es: " + mejorDelay);
+				System.out.println("El offset maximo es: " + mejorOffset);
 			}
 		}
+		
+
 		for (int i = 0; i < nProcesos; i++) {
 			if (i != id) {
 				servidor = i / 2;

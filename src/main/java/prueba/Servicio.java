@@ -42,7 +42,7 @@ public class Servicio {
 
 		for (int i = 0; i < numServidores; i++) {
 			int idIp = i;
-			String ips = ip[0];// + "," + ip[1];// + "," + ip[2];
+			String ips = ip[0]; //+ "," + ip[1];// + "," + ip[2];
 
 			Client cliente = ClientBuilder.newClient();
 			URI uri = UriBuilder.fromUri("http://" + ip[idIp] + ":8080/prueba").build();
@@ -155,6 +155,6 @@ public class Servicio {
 		}
 		long time2 = System.currentTimeMillis();
 		
-		return String.format("%d_%d", time1, time2);
+		return String.format("%d,%d", time1, time2);
 	}
 }
