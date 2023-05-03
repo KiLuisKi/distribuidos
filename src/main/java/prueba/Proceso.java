@@ -12,7 +12,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.client.InvocationCallback;
 
-
 public class Proceso extends Thread {
 	private int id; // Identificador del proceso
 	private int Ci; // Tiempo lógico del proceso(Lamport)
@@ -40,7 +39,7 @@ public class Proceso extends Thread {
 		this.semSC = new Semaphore(0);
 		this.semStart = new Semaphore(0);
 		this.ip[0] = ips[0];
-		this.ip[1] = ips[1];
+		//this.ip[1] = ips[1];
 		// this.ip[2] = ips[2];
 		this.logger = new Logger("C:\\Users\\Luis\\Desktop\\proceso_" + id + ".log");
 	}
@@ -121,6 +120,15 @@ public class Proceso extends Thread {
 	}
 
 	public void run() {
+		if (id == 0) {
+			for (int i = 0; i < 10; i++) {
+				try {
+					Thread.sleep((long) (Math.random() * 200.0 + 300.0));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		for (int i = 0; i < nProcesos; i++) {
 			if (i != id) {
 				servidor = i / 2;
@@ -142,6 +150,27 @@ public class Proceso extends Thread {
 							}
 						});
 			}
+		}
+
+		if (id == 0) {
+			for (int i = 0; i < (nProcesos / 2); i++) {
+				Client cliente = ClientBuilder.newClient();
+				URI uri = UriBuilder.fromUri("http://" + ip[i] + ":8080/prueba").build();
+				WebTarget target = cliente.target(uri);
+
+				target.path("rest").path("servicio").path("liberar").request(MediaType.TEXT_PLAIN).async()
+						.get(new InvocationCallback<Response>() {
+							@Override
+							public void completed(Response response) {
+							}
+
+							@Override
+							public void failed(Throwable throwable) {
+								System.out.println("Invocation failed.");
+								throwable.printStackTrace();
+							}
+						});
+			}			
 		}
 
 		try {

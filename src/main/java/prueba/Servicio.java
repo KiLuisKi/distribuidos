@@ -22,8 +22,8 @@ import javax.ws.rs.client.InvocationCallback;
 public class Servicio {
 	private int espera = 0;
 	private int servidor;
-	private int numProcesos = 4;
-	private int numServidores = 2;
+	private int numProcesos = 2;
+	private int numServidores = 1;
 	private Proceso procesos[] = new Proceso[2];
 	private Semaphore semWait = new Semaphore(0);
 	
@@ -42,7 +42,7 @@ public class Servicio {
 
 		for (int i = 0; i < numServidores; i++) {
 			int idIp = i;
-			String ips = ip[0] + "," + ip[1];// + "," + ip[2];
+			String ips = ip[0];// + "," + ip[1];// + "," + ip[2];
 
 			Client cliente = ClientBuilder.newClient();
 			URI uri = UriBuilder.fromUri("http://" + ip[idIp] + ":8080/prueba").build();
@@ -78,7 +78,6 @@ public class Servicio {
 			i++;
 		}
 		
-		semWait.release();
 		return "Procesos creados";
 	}
 
@@ -133,5 +132,29 @@ public class Servicio {
 		}
 
 		return "Espera realizada";
+	}
+	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("liberar")
+	public String liberar() {
+		semWait.release();
+
+		return "Espera realizada";
+	}
+	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("pedirTiempo")
+	public String pedirTiempo() {
+		long time1 = System.currentTimeMillis(); 
+		try {
+			Thread.sleep((long) (Math.random() * 200.0 + 300.0));
+		} catch (InterruptedException e) {
+			System.err.println("["+ Thread.currentThread().getId()+"] An error occurred in " + e.toString());
+		}
+		long time2 = System.currentTimeMillis();
+		
+		return String.format("%d_%d", time1, time2);
 	}
 }
